@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Setup 2FA - Secure Login</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f172a; min-height: 100vh;
+         display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .card { background: #1e293b; border: 1px solid #334155; border-radius: 16px;
+          padding: 40px; width: 100%; max-width: 440px; text-align: center; }
+  h2 { color: #f1f5f9; font-size: 20px; margin-bottom: 8px; }
+  .sub { color: #94a3b8; font-size: 13px; margin-bottom: 24px; line-height: 1.6; }
+  .qr-wrap { background: white; padding: 16px; border-radius: 12px; display: inline-block; margin-bottom: 20px; }
+  .qr-wrap img { display: block; }
+  .secret-box { background: #0f172a; border: 1px solid #334155; border-radius: 8px;
+                padding: 10px 16px; font-family: monospace; color: #60a5fa;
+                font-size: 14px; letter-spacing: .1em; margin-bottom: 24px; word-break: break-all; }
+  label { display: block; color: #cbd5e1; font-size: 13px; margin-bottom: 8px;
+          font-weight: 500; text-align: left; }
+  input { width: 100%; padding: 11px 14px; background: #0f172a; border: 1px solid #334155;
+          border-radius: 8px; color: #f1f5f9; font-size: 18px; text-align: center;
+          letter-spacing: .2em; outline: none; margin-bottom: 16px; }
+  input:focus { border-color: #3b82f6; }
+  .btn { width: 100%; padding: 12px; background: #3b82f6; color: white; border: none;
+         border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
+  .btn:hover { background: #2563eb; }
+  .back { display: block; margin-top: 16px; color: #64748b; font-size: 13px; text-decoration: none; }
+  .back:hover { color: #94a3b8; }
+  .flash { padding: 10px 14px; border-radius: 8px; margin-bottom: 16px; font-size: 13px; text-align: left; }
+  .flash.error { background: #450a0a; color: #fca5a5; border: 1px solid #7f1d1d; }
+  .steps { text-align: left; margin-bottom: 20px; }
+  .steps li { color: #94a3b8; font-size: 13px; padding: 4px 0; list-style: decimal;
+              margin-left: 18px; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h2>🔑 Enable Two-Factor Auth</h2>
+  <p class="sub">Scan the QR code with Google Authenticator,<br>then enter the 6-digit code to confirm.</p>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="flash {{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <div class="qr-wrap">
+    <img src="data:image/png;base64,{{ qr_code }}" width="180" height="180" alt="QR Code">
+  </div>
+
+  <p style="color:#64748b;font-size:12px;margin-bottom:8px;">Or enter this secret key manually:</p>
+  <div class="secret-box">{{ secret }}</div>
+
+  <ol class="steps">
+    <li>Install Google Authenticator on your phone</li>
+    <li>Tap + and scan the QR code above</li>
+    <li>Enter the 6-digit code shown in the app</li>
+  </ol>
+
+  <form method="POST">
+    <label>Enter 6-digit OTP code</label>
+    <input type="text" name="otp" maxlength="6" placeholder="000000" required autocomplete="off">
+    <button type="submit" class="btn">Verify and Enable 2FA</button>
+  </form>
+
+  <a href="/dashboard" class="back">Cancel, go back to dashboard</a>
+</div>
+</body>
+</html>
