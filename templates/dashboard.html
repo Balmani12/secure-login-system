@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard - Secure Login</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f172a; min-height: 100vh; padding: 30px 16px; }
+  .topbar { display: flex; justify-content: space-between; align-items: center;
+            max-width: 700px; margin: 0 auto 28px; }
+  .brand { color: #f1f5f9; font-size: 18px; font-weight: 700; }
+  .brand span { margin-right: 8px; }
+  .logout-btn { padding: 8px 18px; background: transparent; border: 1px solid #ef4444;
+                color: #ef4444; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; }
+  .logout-btn:hover { background: #ef444420; }
+  .card { background: #1e293b; border: 1px solid #334155; border-radius: 16px;
+          padding: 32px; max-width: 700px; margin: 0 auto 20px; }
+  .welcome { display: flex; align-items: center; gap: 16px; margin-bottom: 28px; }
+  .avatar { width: 56px; height: 56px; background: #1d4ed8; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; font-weight: 700; color: white; flex-shrink: 0; }
+  .welcome h2 { color: #f1f5f9; font-size: 20px; }
+  .welcome p  { color: #94a3b8; font-size: 13px; margin-top: 3px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
+  .stat { background: #0f172a; border: 1px solid #334155; border-radius: 10px; padding: 16px; }
+  .stat-label { color: #64748b; font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; }
+  .stat-val   { color: #f1f5f9; font-size: 18px; font-weight: 700; margin-top: 6px; }
+  .section-title { color: #94a3b8; font-size: 12px; font-weight: 600; letter-spacing: .06em;
+                   text-transform: uppercase; margin-bottom: 14px; }
+  .twofa-box { background: #0f172a; border: 1px solid #334155; border-radius: 10px; padding: 18px;
+               display: flex; justify-content: space-between; align-items: center; }
+  .twofa-info h4 { color: #f1f5f9; font-size: 14px; font-weight: 600; }
+  .twofa-info p  { color: #94a3b8; font-size: 12px; margin-top: 4px; }
+  .badge-on  { padding: 4px 12px; background: #052e16; color: #86efac; border-radius: 20px;
+               font-size: 11px; font-weight: 600; border: 1px solid #14532d; }
+  .badge-off { padding: 4px 12px; background: #450a0a; color: #fca5a5; border-radius: 20px;
+               font-size: 11px; font-weight: 600; border: 1px solid #7f1d1d; }
+  .btn-sm { padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600;
+            cursor: pointer; border: none; text-decoration: none; display: inline-block; }
+  .btn-enable  { background: #3b82f6; color: white; }
+  .btn-disable { background: #334155; color: #f1f5f9; }
+  .btn-enable:hover  { background: #2563eb; }
+  .btn-disable:hover { background: #475569; }
+  .flash { padding: 10px 14px; border-radius: 8px; margin-bottom: 20px; font-size: 13px;
+           max-width: 700px; margin-left: auto; margin-right: auto; }
+  .flash.error   { background: #450a0a; color: #fca5a5; border: 1px solid #7f1d1d; }
+  .flash.success { background: #052e16; color: #86efac; border: 1px solid #14532d; }
+  .security-list { list-style: none; }
+  .security-list li { color: #94a3b8; font-size: 13px; padding: 7px 0;
+                      border-bottom: 1px solid #1e293b; display: flex; align-items: center; gap: 10px; }
+  .security-list li:last-child { border-bottom: none; }
+  .tick { color: #22c55e; font-size: 16px; }
+</style>
+</head>
+<body>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="flash {{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <div class="topbar">
+    <div class="brand"><span>🔐</span> SecureLogin</div>
+    <a href="/logout"><button class="logout-btn">Logout</button></a>
+  </div>
+
+  <div class="card">
+    <div class="welcome">
+      <div class="avatar">{{ user.username[0].upper() }}</div>
+      <div>
+        <h2>Hello, {{ user.username }}!</h2>
+        <p>{{ user.email }} &nbsp;·&nbsp; Logged in successfully</p>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="stat">
+        <div class="stat-label">Account Status</div>
+        <div class="stat-val" style="color:#22c55e">Active ✓</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Password</div>
+        <div class="stat-val" style="color:#3b82f6">bcrypt Hashed</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">SQL Injection</div>
+        <div class="stat-val" style="color:#22c55e">Protected ✓</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">2FA Status</div>
+        <div class="stat-val" style="color:{{ '#22c55e' if user.twofa_enabled else '#f59e0b' }}">
+          {{ 'Enabled ✓' if user.twofa_enabled else 'Disabled' }}
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">Two-Factor Authentication</div>
+    <div class="twofa-box">
+      <div class="twofa-info">
+        <h4>Google Authenticator (TOTP)</h4>
+        <p>{{ 'Your account is protected with 2FA.' if user.twofa_enabled else 'Add an extra layer of security to your account.' }}</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        {% if user.twofa_enabled %}
+          <span class="badge-on">ON</span>
+          <a href="/disable-2fa" class="btn-sm btn-disable">Disable</a>
+        {% else %}
+          <span class="badge-off">OFF</span>
+          <a href="/setup-2fa" class="btn-sm btn-enable">Enable 2FA</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Security Features Active</div>
+    <ul class="security-list">
+      <li><span class="tick">✓</span> Passwords hashed with bcrypt (cost factor 12)</li>
+      <li><span class="tick">✓</span> SQL Injection prevented via SQLAlchemy ORM</li>
+      <li><span class="tick">✓</span> Input validation on all form fields</li>
+      <li><span class="tick">✓</span> Session management with secure cookies</li>
+      <li><span class="tick">✓</span> TOTP-based 2FA available via Google Authenticator</li>
+      <li><span class="tick">✓</span> Session cleared completely on logout</li>
+    </ul>
+  </div>
+
+</body>
+</html>
